@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "doc_type": "전공 탐구 보고서",
+    "title": "보고서 제목",
+    "subtitle": "부제",
+    "short_title": "보고서 제목",
+    "file_topic": "주제",
+    "department": "소속 학과",
+    "author": "작성자",
+    "date": "2026. 01. 01.",
+    "keywords": ["키워드1", "키워드2"]
+  },
+  "summary": [
+    "첫 번째 핵심 내용을 한 문장으로 쓴다 [@ref1].",
+    "두 번째 핵심 내용을 한 문장으로 쓴다 [@ref2]."
+  ],
+  "sections": [
+    {
+      "heading": "서론",
+      "blocks": [
+        { "type": "paragraph", "text": "배경과 문제를 제시한다 [@ref1]. 주요 수치는 {tbl:t1}에 정리했다." },
+        {
+          "type": "table", "id": "t1",
+          "caption": "표 제목 [@ref1]",
+          "columns": ["항목", "값"],
+          "rows": [["A", "1"], ["B", "2"]],
+          "widths": [2, 1],
+          "align": ["left", "center"]
+        }
+      ]
+    },
+    {
+      "heading": "본론",
+      "subsections": [
+        {
+          "heading": "첫 번째 주제",
+          "blocks": [
+            { "type": "paragraph", "text": "{fig:f1}은 비교 결과를 보여 준다 [@ref2]." },
+            {
+              "type": "chart", "id": "f1",
+              "caption": "차트 제목 [@ref2]",
+              "categories": ["그룹 1", "그룹 2"],
+              "series": [{ "name": "지표", "values": [10, 20] }],
+              "unit": "%", "ylabel": "값 (%)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "결론",
+      "blocks": [
+        { "type": "bullets", "items": ["**요점 1**: 설명", "**요점 2**: 설명"] }
+      ]
+    }
+  ],
+  "references": [
+    { "id": "ref1", "authors": "저자", "title": "제목", "source": "학술지, vol. 1, pp. 1–10", "year": 2024, "url": "https://doi.org/10.0000/example1" },
+    { "id": "ref2", "authors": "저자", "title": "제목", "source": "기관", "year": 2025, "url": "https://example.org/report" }
+  ]
+}

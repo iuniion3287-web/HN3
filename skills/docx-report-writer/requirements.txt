@@ -1,0 +1,4 @@
+python-docx>=1.1
+matplotlib>=3.7
+pymupdf>=1.23          # render_preview.py (선택)
+pywin32>=306; sys_platform == "win32"   # finalize_word.py: Word 자동화 (선택)

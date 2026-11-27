@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "doc_type": "AI신약학과 전공 탐구 보고서",
+    "title": "AI 기반 신약개발의 현황과 과제",
+    "subtitle": "단백질 구조 예측과 생성형 AI가 바꾸는 신약 발견 파이프라인",
+    "short_title": "AI 기반 신약개발의 현황과 과제",
+    "file_topic": "AI신약개발",
+    "department": "AI신약학과",
+    "author": "정채윤",
+    "date": "2026. 11. 27.",
+    "keywords": ["AI 신약개발", "AlphaFold", "생성형 AI", "가상 스크리닝", "TNIK", "규제과학"]
+  },
+
+  "summary": [
+    "신약 하나를 시장에 내놓기까지 평균 약 26억 달러(2013년 달러 기준)가 들고 [@dimasi2016], 임상 1상에 진입한 후보물질 중 미국 FDA 승인까지 이르는 비율은 7.9%에 불과하다 [@bio2021].",
+    "AI는 표적 발굴부터 임상시험까지 신약개발 전 단계에 적용되고 있으며 [@vamathevan2019], 특히 **단백질 구조 예측**(AlphaFold)과 **생성형 분자·단백질 설계**가 핵심 기술로 자리 잡았다 [@jumper2021; @abramson2024; @watson2023].",
+    "생성형 AI로 표적과 분자를 모두 발굴한 TNIK 저해제 렌토서팁(rentosertib)은 임상 2a상에서 안전성을 확인하고 폐활량 개선 신호를 보였다 [@xu2025].",
+    "AI로 발굴된 분자의 임상 1상 성공률은 80~90%로 업계 평균보다 높았지만, 2상 성공률은 약 40%로 기존 평균과 비슷한 수준이었다 [@jayatunga2024].",
+    "데이터 품질, 모델 해석 가능성, 규제 대응이 남은 과제이며, 유럽의약품청(EMA)은 위험 기반 접근과 신청자의 책임을 강조하고 있다 [@ema2024]."
+  ],
+
+  "sections": [
+    {
+      "heading": "서론",
+      "blocks": [
+        { "type": "paragraph", "text": "신약개발은 시간과 비용이 매우 많이 드는 고위험 사업이다. DiMasi 등의 연구에 따르면 승인된 신약 1개당 직접 지출 비용은 평균 13억 9,500만 달러이며, 개발 기간 동안의 자본 비용까지 포함하면 약 25억 5,800만 달러(2013년 달러 기준)에 이른다 [@dimasi2016]. 또한 임상 1상 후보물질이 승인까지 걸리는 기간은 평균 10.5년이다 [@bio2021]." },
+        { "type": "paragraph", "text": "더 큰 문제는 낮은 성공률이다. {tbl:phase}와 같이 2011~2020년 미국 임상 개발 자료 분석에서 임상 1상에서 승인까지의 누적 성공 확률(LOA, likelihood of approval)은 7.9%였으며, 그중 임상 2상의 통과율이 28.9%로 가장 낮았다 [@bio2021]. 즉, 효능이 충분하지 않은 후보물질이 늦은 단계에서 탈락하면서 막대한 비용이 낭비되고 있다." },
+        {
+          "type": "table", "id": "phase",
+          "caption": "임상 개발 단계별 성공률 (2011~2020년, 전체 질환) [@bio2021]",
+          "columns": ["개발 단계", "다음 단계 진입 성공률", "분석 대상 수(n)"],
+          "rows": [
+            ["임상 1상 → 2상", "52.0%", "4,414"],
+            ["임상 2상 → 3상", "28.9%", "4,933"],
+            ["임상 3상 → 허가 신청", "57.8%", "1,928"],
+            ["허가 신청(NDA/BLA) → 승인", "90.6%", "1,453"],
+            ["**임상 1상 → 승인 (누적)**", "**7.9%**", "12,728"]
+          ],
+          "widths": [5, 4, 3],
+          "align": ["left", "center", "center"],
+          "note": "누적 성공 확률은 단계별 성공률을 곱한 값이며, 누적 행의 n은 분석한 전체 개발 프로그램 수이다."
+        },
+        { "type": "paragraph", "text": "이러한 고비용·저효율 구조를 개선하기 위해 인공지능(AI, artificial intelligence)을 신약개발에 도입하려는 시도가 빠르게 늘고 있다. 이 보고서는 AI가 신약개발 파이프라인의 어느 단계에 어떻게 활용되는지 정리하고, 대표 기술과 실제 임상 사례를 살펴본 뒤, 남은 과제와 AI신약학과 학생으로서의 시사점을 제시한다." }
+      ]
+    },
+    {
+      "heading": "AI 신약개발 파이프라인",
+      "blocks": [
+        { "type": "paragraph", "text": "신약개발은 일반적으로 표적 발굴, 유효물질(hit) 발굴, 선도물질(lead) 최적화, 전임상 평가, 임상시험의 순서로 진행된다({fig:pipeline}). 기계학습(machine learning)은 이 모든 단계에서 활용되고 있으며, 단계별 주요 적용 분야는 {tbl:stage}와 같다 [@vamathevan2019]." },
+        {
+          "type": "flow", "id": "pipeline",
+          "caption": "신약개발 파이프라인과 단계별 AI 적용 영역",
+          "steps": [
+            { "title": "표적 발굴", "desc": "오믹스 데이터 분석\n질병 연관 단백질 탐색" },
+            { "title": "유효물질 발굴", "desc": "가상 스크리닝\n구조 기반 탐색" },
+            { "title": "선도물질 최적화", "desc": "생성형 분자 설계\n물성·활성 예측" },
+            { "title": "전임상", "desc": "ADMET·독성 예측" },
+            { "title": "임상시험", "desc": "환자군 선별\n바이오마커 분석" }
+          ]
+        },
+        {
+          "type": "table", "id": "stage",
+          "caption": "신약개발 단계별 AI 활용 예시 [@vamathevan2019]",
+          "columns": ["단계", "핵심 질문", "AI 활용 예시"],
+          "rows": [
+            ["표적 발굴", "어떤 단백질을 공략해야 하는가?", "유전체·전사체 데이터에서 질병 연관 표적 우선순위 결정"],
+            ["유효물질 발굴", "표적에 결합하는 물질은 무엇인가?", "수억 개 화합물 라이브러리에 대한 활성 예측(가상 스크리닝)"],
+            ["선도물질 최적화", "효능과 약물성을 함께 높일 수 있는가?", "생성 모델로 새로운 구조 설계, 물성·결합력 예측"],
+            ["전임상", "체내에서 안전하게 작용하는가?", "ADMET(흡수·분포·대사·배설·독성) 예측"],
+            ["임상시험", "누구에게 효과가 있는가?", "바이오마커 기반 환자 선별, 임상 데이터 분석"]
+          ],
+          "widths": [2.6, 4.4, 7],
+          "align": ["center", "left", "left"]
+        }
+      ]
+    },
+    {
+      "heading": "핵심 기술",
+      "subsections": [
+        {
+          "heading": "단백질 구조 예측: AlphaFold",
+          "blocks": [
+            { "type": "paragraph", "text": "약물은 대부분 표적 단백질의 특정 부위에 결합해 작용하므로, 단백질의 3차원 구조를 아는 것은 신약 설계의 출발점이다. 구글 딥마인드(Google DeepMind)의 **AlphaFold2**는 2020년 단백질 구조 예측 대회 CASP14에서 실험 구조에 근접한 원자 수준의 정확도를 보여 주었다 [@jumper2021]. 이후 공개된 AlphaFold 단백질 구조 데이터베이스는 2억 1,400만 개 이상의 단백질 서열에 대한 예측 구조를 제공한다 [@varadi2024]." },
+            { "type": "paragraph", "text": "2024년 발표된 **AlphaFold3**는 확산(diffusion) 기반 구조를 도입해 단백질뿐 아니라 핵산, 저분자 화합물, 이온 등이 결합한 복합체 구조까지 예측한다. 특히 단백질-리간드 결합 예측에서 기존 도킹(docking) 도구보다 훨씬 높은 정확도를 보였다 [@abramson2024]. 이러한 공로로 2024년 노벨 화학상은 단백질 구조 예측을 개발한 데미스 허사비스와 존 점퍼, 그리고 계산 기반 단백질 설계를 개척한 데이비드 베이커에게 돌아갔다 [@nobel2024]." }
+          ]
+        },
+        {
+          "heading": "생성형 AI 기반 분자·단백질 설계",
+          "blocks": [
+            { "type": "paragraph", "text": "구조 예측이 '이미 존재하는 단백질의 모양'을 알려준다면, 생성형 AI는 '원하는 기능을 가진 새로운 분자'를 만들어 낸다. 베이커 연구팀의 **RFdiffusion**은 확산 모델을 이용해 자연에 없는 단백질 구조를 처음부터(de novo) 설계하며, 특정 표적에 결합하는 단백질(binder) 설계에도 활용된다 [@watson2023]. 저분자 의약품 분야에서는 생성형 화학 모델이 원하는 결합력과 약물성을 갖춘 새로운 화합물 구조를 제안하며, 4장의 렌토서팁이 그 대표 사례다 [@ren2024]." }
+          ]
+        },
+        {
+          "heading": "딥러닝 가상 스크리닝",
+          "blocks": [
+            { "type": "paragraph", "text": "가상 스크리닝은 실험 전에 컴퓨터로 수많은 화합물의 활성을 예측해 유망한 후보만 골라내는 방법이다. MIT 연구팀은 항균 활성을 예측하는 심층 신경망을 학습시켜 기존 항생제와 구조가 전혀 다른 **할리신(halicin)**을 찾아냈다. 할리신은 결핵균과 카바페넴 내성 장내세균을 포함한 다양한 병원균에 살균 효과를 보였고, 생쥐 감염 모델에서도 치료 효과가 확인되었다 [@stokes2020]." },
+            { "type": "paragraph", "text": "같은 연구에서 모델은 ZINC15 데이터베이스의 1억 700만 개 이상 분자를 대상으로 예측을 수행했고, 실제로 시험한 23개 후보 중 8개가 기존 항생제와 구조가 다른 항균 화합물로 확인되었다 [@stokes2020]. 이는 AI가 실험 대상을 크게 줄여 탐색 효율을 높일 수 있음을 보여 준다." }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "사례 연구: AI가 발굴한 신약의 임상 성과",
+      "subsections": [
+        {
+          "heading": "렌토서팁(rentosertib): 표적과 분자를 모두 AI로 발굴",
+          "blocks": [
+            { "type": "paragraph", "text": "특발성 폐섬유증(IPF, idiopathic pulmonary fibrosis)은 사망률이 높은 진행성 간질성 폐질환이다. 인실리코 메디신(Insilico Medicine) 연구팀은 예측 AI로 TNIK(TRAF2- and NCK-interacting kinase)를 새로운 항섬유화 표적으로 발굴하고, 생성형 AI로 TNIK 저해제 INS018_055(현 렌토서팁)를 설계했다. 표적 발굴부터 전임상 후보물질 선정까지 약 18개월이 걸렸으며, 건강한 성인 78명을 대상으로 한 임상 1상에서 안전성과 약동학이 확인되었다 [@ren2024]." },
+            { "type": "paragraph", "text": "이어진 임상 2a상은 IPF 환자 71명을 네 군으로 무작위 배정해 12주간 진행되었다({tbl:trial}). 1차 평가변수인 이상반응 발생 환자 비율은 모든 군에서 비슷했고, 60 mg 1일 1회 투여군에서 노력성 폐활량(FVC)이 평균 98.4 mL 증가한 반면 위약군은 20.3 mL 감소했다 [@xu2025]. 연구진은 더 큰 규모와 더 긴 기간의 임상시험이 필요하다고 밝혔다 [@xu2025]." },
+            {
+              "type": "table", "id": "trial",
+              "caption": "렌토서팁 임상 2a상 주요 결과 (12주) [@xu2025]",
+              "columns": ["투여군", "환자 수", "이상반응 발생 비율", "FVC 평균 변화"],
+              "rows": [
+                ["30 mg 1일 1회", "18", "72.2%", "-"],
+                ["30 mg 1일 2회", "18", "83.3%", "-"],
+                ["60 mg 1일 1회", "18", "83.3%", "**+98.4 mL**"],
+                ["위약", "17", "70.6%", "-20.3 mL"]
+              ],
+              "widths": [4, 2.5, 4, 3.5],
+              "align": ["left", "center", "center", "center"],
+              "note": "FVC: 노력성 폐활량. '-'는 논문 초록에 보고되지 않은 값이다."
+            }
+          ]
+        },
+        {
+          "heading": "AI 발굴 분자의 임상 성공률",
+          "blocks": [
+            { "type": "paragraph", "text": "AI 기반 바이오기업들의 임상 파이프라인을 처음 분석한 연구에 따르면, AI로 발굴된 분자의 임상 1상 성공률은 80~90%로 업계의 과거 평균보다 상당히 높았다. 반면 2상 성공률은 약 40%로, 표본이 작다는 한계가 있지만 기존 평균과 비슷한 수준이었다 [@jayatunga2024]. {fig:success}는 이를 업계 평균 단계 통과율과 비교한 것이다 [@bio2021]." },
+            {
+              "type": "chart", "kind": "bar", "id": "success",
+              "caption": "AI 발굴 분자와 업계 평균의 임상 단계별 성공률 비교 [@jayatunga2024; @bio2021]",
+              "categories": ["임상 1상", "임상 2상"],
+              "series": [
+                { "name": "AI 발굴 분자", "values": [85, 40], "labels": ["80~90%", "약 40%"] },
+                { "name": "업계 평균 (2011~2020)", "values": [52.0, 28.9], "labels": ["52.0%", "28.9%"] }
+              ],
+              "note": "AI 발굴 분자의 1상 막대 높이는 보고된 범위(80~90%)의 중간값 85%로 표시했다.",
+              "unit": "%",
+              "ylabel": "단계 통과율 (%)",
+              "ymax": 100
+            },
+            { "type": "paragraph", "text": "1상의 높은 성공률은 AI가 약물다운 성질을 가진 분자를 설계하는 데 강점이 있음을 시사한다 [@jayatunga2024]. 그러나 실제 효능을 검증하는 2상에서는 아직 뚜렷한 차이가 확인되지 않았다. AI는 '좋은 분자'를 만드는 데는 도움이 되지만, '질병에 효과가 있는 약'인지는 여전히 임상으로 확인해야 한다는 뜻이다." }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "한계와 과제",
+      "blocks": [
+        { "type": "paragraph", "text": "AI 신약개발이 넘어야 할 과제는 크게 세 가지로 정리할 수 있다." },
+        {
+          "type": "bullets",
+          "items": [
+            "**데이터 품질과 양**: 기계학습 모델의 성능은 학습 데이터에 좌우된다. 신약개발 데이터는 기관마다 측정 조건이 다르고 실패한 실험이 잘 공개되지 않아, 편향되거나 부족한 경우가 많다 [@vamathevan2019].",
+            "**해석 가능성과 검증**: 딥러닝 모델은 예측 근거를 설명하기 어렵다 [@vamathevan2019]. 렌토서팁 2a상도 12주, 71명 규모였기 때문에 효과를 확정하려면 더 크고 긴 임상이 필요하다 [@xu2025].",
+            "**규제 대응**: EMA는 2024년 성찰 문서에서 AI·기계학습 도구의 개발·배포·성능 모니터링에 위험 기반 접근을 권고했다. 또한 사용한 알고리즘, 모델, 데이터셋이 목적에 적합한지 보장할 책임은 임상시험 의뢰자와 허가 신청자에게 있다고 명시했다 [@ema2024]."
+          ]
+        },
+        { "type": "paragraph", "text": "EMA는 AI·기계학습 도구에 대한 신뢰를 쌓기 위해 모든 개발과 활용 과정에 인간 중심 접근(human-centric approach)이 필요하다고 강조한다 [@ema2024]. 결국 AI는 연구자를 대체하는 도구가 아니라, 연구자의 판단과 실험 검증을 전제로 탐색 속도를 높이는 도구로 이해해야 한다." }
+      ]
+    },
+    {
+      "heading": "결론 및 시사점",
+      "blocks": [
+        { "type": "paragraph", "text": "AI는 단백질 구조 예측, 생성형 분자 설계, 가상 스크리닝을 통해 신약개발의 초기 단계를 빠르게 바꾸고 있다. 렌토서팁처럼 표적 발굴부터 분자 설계까지 AI를 활용한 후보물질이 임상 2a상까지 진입했고, AI 발굴 분자는 1상에서 높은 성공률을 보였다. 다만 효능 검증 단계인 2상 이후의 성과는 아직 충분히 입증되지 않았으며, 데이터와 규제 측면의 과제도 남아 있다." },
+        { "type": "paragraph", "text": "AI신약학과 학생으로서 이 보고서를 작성하며 얻은 시사점은 다음과 같다." },
+        {
+          "type": "bullets",
+          "items": [
+            "**융합 역량**: 모델을 다루는 데이터 과학 능력과 함께, 결과를 해석할 수 있는 생물학·화학·약학 지식이 모두 필요하다.",
+            "**검증 중심 사고**: AI 예측은 가설일 뿐이므로, 실험과 임상으로 확인하는 과정을 설계할 수 있어야 한다.",
+            "**규제과학 이해**: 모델의 신뢰성, 데이터의 적합성, 결과의 설명 가능성을 문서로 입증하는 능력이 실제 신약 허가에서 중요해질 것이다."
+          ]
+        }
+      ]
+    }
+  ],
+
+  "references": [
+    { "id": "dimasi2016", "authors": "J. A. DiMasi, H. G. Grabowski, R. W. Hansen", "title": "Innovation in the pharmaceutical industry: New estimates of R&D costs", "source": "Journal of Health Economics, vol. 47, pp. 20–33", "year": 2016, "url": "https://doi.org/10.1016/j.jhealeco.2016.01.012" },
+    { "id": "bio2021", "authors": "BIO, Informa Pharma Intelligence, QLS Advisors", "title": "Clinical Development Success Rates and Contributing Factors 2011–2020", "source": "Biotechnology Innovation Organization", "year": 2021, "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf" },
+    { "id": "vamathevan2019", "authors": "J. Vamathevan et al.", "title": "Applications of machine learning in drug discovery and development", "source": "Nature Reviews Drug Discovery, vol. 18, no. 6, pp. 463–477", "year": 2019, "url": "https://doi.org/10.1038/s41573-019-0024-5" },
+    { "id": "jumper2021", "authors": "J. Jumper et al.", "title": "Highly accurate protein structure prediction with AlphaFold", "source": "Nature, vol. 596, pp. 583–589", "year": 2021, "url": "https://doi.org/10.1038/s41586-021-03819-2" },
+    { "id": "abramson2024", "authors": "J. Abramson et al.", "title": "Accurate structure prediction of biomolecular interactions with AlphaFold 3", "source": "Nature, vol. 630, pp. 493–500", "year": 2024, "url": "https://doi.org/10.1038/s41586-024-07487-w" },
+    { "id": "watson2023", "authors": "J. L. Watson et al.", "title": "De novo design of protein structure and function with RFdiffusion", "source": "Nature, vol. 620, pp. 1089–1100", "year": 2023, "url": "https://doi.org/10.1038/s41586-023-06415-8" },
+    { "id": "xu2025", "authors": "Z. Xu et al.", "title": "A generative AI-discovered TNIK inhibitor for idiopathic pulmonary fibrosis: a randomized phase 2a trial", "source": "Nature Medicine, vol. 31, pp. 2602–2610", "year": 2025, "url": "https://doi.org/10.1038/s41591-025-03743-2" },
+    { "id": "jayatunga2024", "authors": "M. K. P. Jayatunga et al.", "title": "How successful are AI-discovered drugs in clinical trials? A first analysis and emerging lessons", "source": "Drug Discovery Today, vol. 29, no. 6, 104009", "year": 2024, "url": "https://doi.org/10.1016/j.drudis.2024.104009" },
+    { "id": "ema2024", "authors": "European Medicines Agency (EMA)", "title": "Reflection paper on the use of Artificial Intelligence (AI) in the medicinal product lifecycle (EMA/CHMP/CVMP/83833/2023)", "source": "EMA", "year": 2024, "url": "https://www.ema.europa.eu/en/use-artificial-intelligence-ai-medicinal-product-lifecycle-scientific-guideline" },
+    { "id": "varadi2024", "authors": "M. Varadi et al.", "title": "AlphaFold Protein Structure Database in 2024: providing structure coverage for over 214 million protein sequences", "source": "Nucleic Acids Research, vol. 52, no. D1, pp. D368–D375", "year": 2024, "url": "https://doi.org/10.1093/nar/gkad1011" },
+    { "id": "nobel2024", "authors": "The Royal Swedish Academy of Sciences", "title": "The Nobel Prize in Chemistry 2024 – Press release", "source": "NobelPrize.org", "year": 2024, "url": "https://www.nobelprize.org/prizes/chemistry/2024/press-release/" },
+    { "id": "stokes2020", "authors": "J. M. Stokes et al.", "title": "A Deep Learning Approach to Antibiotic Discovery", "source": "Cell, vol. 180, no. 4, pp. 688–702", "year": 2020, "url": "https://doi.org/10.1016/j.cell.2020.01.021" },
+    { "id": "ren2024", "authors": "F. Ren et al.", "title": "A small-molecule TNIK inhibitor targets fibrosis in preclinical and clinical models", "source": "Nature Biotechnology, vol. 43, pp. 63–75", "year": 2025, "url": "https://doi.org/10.1038/s41587-024-02143-0" }
+  ]
+}
